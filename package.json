@@ -46,7 +46,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm test && npm run build && npm run check:package",
-    "check:package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints style.css",
+    "check:package": "node scripts/check-package.mjs",
     "test:consumer": "npm run build && node scripts/test-consumer.mjs",
     "generate:versification": "node scripts/generate-versification.mjs",
     "prepublishOnly": "npm run check"
