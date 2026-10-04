@@ -1,8 +1,11 @@
 # milkdown-plugin-bible
 
+[![npm](https://img.shields.io/npm/v/milkdown-plugin-bible)](https://www.npmjs.com/package/milkdown-plugin-bible)
+[![CI](https://github.com/TimStewartJ/milkdown-plugin-bible/actions/workflows/ci.yml/badge.svg)](https://github.com/TimStewartJ/milkdown-plugin-bible/actions/workflows/ci.yml)
+
 Bible references for [Milkdown](https://milkdown.dev). Write `John 3:16` and the plugin underlines it, shows the passage when you point at it or tap it, and can drop the passage into the document as a quote.
 
-![The passage popover over a reference in a Crepe editor](docs/popover.png)
+![The passage popover over a reference in a Crepe editor](https://raw.githubusercontent.com/TimStewartJ/milkdown-plugin-bible/main/docs/popover.png)
 
 It stores nothing of its own in the document. References stay the text you typed, and an inserted passage is an ordinary Markdown block quote, so the file reads the same in any other editor.
 

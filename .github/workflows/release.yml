@@ -1,4 +1,8 @@
 # Publishes to npm when a version tag is pushed. See RELEASING.md.
+#
+# There is no npm token. npm trusts this workflow file in this repository
+# ("trusted publishing"), so renaming the file or moving the repository means
+# registering the new one with `npm trust github`.
 name: Release
 
 on:
@@ -19,9 +23,9 @@ jobs:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
-      - run: npm ci
       - name: Check that the tag matches package.json
         run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      - run: npm ci
       - run: npm run test:consumer
       # prepublishOnly runs the type check, the tests, the build and the package lint first.
       - run: npm publish
