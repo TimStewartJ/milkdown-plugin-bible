@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+No code changes. This is the first release published by GitHub Actions, so it carries a provenance statement linking it to the commit and workflow run that built it.
+
+- README: npm and CI badges, and the screenshot now shows on npmjs.com.
+
 ## 0.1.0
 
 First release.
