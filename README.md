@@ -158,7 +158,7 @@ const provider = cachedProvider(helloaoProvider(), {
 
 ```css
 .milkdown {
-  --bible-accent: #2a7628; /* underline, verse numbers, primary button */
+  --bible-accent: #2a7628; /* a reference when pointed at, verse numbers, primary button */
   --bible-on-accent: #fff;
   --bible-surface: #fff; /* popover background */
   --bible-text: #15281a;
@@ -172,7 +172,7 @@ const provider = cachedProvider(helloaoProvider(), {
 }
 ```
 
-Classes in the document: `.bible-ref` on each reference, `.bible-passage` on a quoted passage, `.bible-passage-cite` on its citation line, `.bible-verse-number` on its verse numbers.
+A reference at rest has a thin underline in the colour of the text around it. Classes in the document: `.bible-ref` on each reference, `.bible-passage` on a quoted passage, `.bible-passage-cite` on its citation line, `.bible-verse-number` on its verse numbers.
 
 ## Without the editor
 

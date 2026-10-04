@@ -1,6 +1,6 @@
 {
   "name": "milkdown-plugin-bible",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Bible references for Milkdown: finds references as you write, previews the passage and inserts it as a quote.",
   "keywords": [
     "milkdown",

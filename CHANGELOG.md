@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- References are marked with a thin solid underline in the colour of the surrounding text, and turn the accent colour when pointed at or open. The dotted accent-coloured underline looked like a spelling or grammar mark.
+
 ## 0.1.1
 
 No code changes. This is the first release published by GitHub Actions, so it carries a provenance statement linking it to the commit and workflow run that built it.

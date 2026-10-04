@@ -5,7 +5,7 @@
  * browser's own colours otherwise. Override any of the --bible-* properties
  * on an ancestor of the editor to restyle it:
  *
- *   --bible-accent      links, verse numbers, the primary button
+ *   --bible-accent      a reference when pointed at, verse numbers, the primary button
  *   --bible-on-accent   text on the accent colour
  *   --bible-surface     popover background
  *   --bible-text        popover text
@@ -38,19 +38,20 @@
 
 /* ---- In the document ---------------------------------------------------- */
 
+/* A thin, solid line in the text's own colour: it says "this opens" the way a
+   link does. Dotted, wavy or coloured lines read as spelling and grammar marks. */
 .ProseMirror .bible-ref {
-  border-radius: 3px;
-  text-decoration: underline dotted color-mix(in srgb, var(--_accent) 65%, transparent);
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 0.2em;
+  text-decoration: underline solid color-mix(in srgb, currentColor 30%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
   transition:
-    background-color 120ms ease,
+    color 120ms ease,
     text-decoration-color 120ms ease;
 }
 
 .ProseMirror .bible-ref:hover,
 .ProseMirror .bible-ref--active {
-  background-color: var(--_tint);
+  color: var(--_accent);
   text-decoration-color: var(--_accent);
 }
 
