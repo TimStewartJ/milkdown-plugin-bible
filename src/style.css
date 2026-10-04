@@ -1,0 +1,636 @@
+/*
+ * milkdown-plugin-bible
+ *
+ * Colours follow the editor: Crepe's theme variables where they exist, the
+ * browser's own colours otherwise. Override any of the --bible-* properties
+ * on an ancestor of the editor to restyle it:
+ *
+ *   --bible-accent      links, verse numbers, the primary button
+ *   --bible-on-accent   text on the accent colour
+ *   --bible-surface     popover background
+ *   --bible-text        popover text
+ *   --bible-muted       secondary text
+ *   --bible-border      hairlines
+ *   --bible-shadow      popover shadow
+ *   --bible-radius      popover corner radius
+ *   --bible-font-ui     labels and buttons
+ *   --bible-font-text   passage text
+ *   --bible-z-index     popover stacking order
+ */
+
+.bible-ref,
+.bible-verse-number,
+.bible-passage,
+.bible-hint,
+.bible-loading,
+.bible-popover {
+  --_accent: var(--bible-accent, var(--crepe-color-primary, LinkText));
+  --_on-accent: var(--bible-on-accent, var(--crepe-color-on-primary, Canvas));
+  --_surface: var(--bible-surface, var(--crepe-color-surface, Canvas));
+  --_text: var(--bible-text, var(--crepe-color-on-surface, CanvasText));
+  --_muted: var(--bible-muted, var(--crepe-color-on-surface-variant, color-mix(in srgb, CanvasText 62%, Canvas)));
+  --_border: var(--bible-border, color-mix(in srgb, var(--_text) 14%, transparent));
+  --_tint: color-mix(in srgb, var(--_accent) 13%, transparent);
+  --_wash: color-mix(in srgb, var(--_text) 6%, transparent);
+  --_font-ui: var(--bible-font-ui, system-ui, -apple-system, 'Segoe UI', sans-serif);
+  --_font-text: var(--bible-font-text, var(--crepe-font-title, Georgia, 'Times New Roman', serif));
+}
+
+/* ---- In the document ---------------------------------------------------- */
+
+.ProseMirror .bible-ref {
+  border-radius: 3px;
+  text-decoration: underline dotted color-mix(in srgb, var(--_accent) 65%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.2em;
+  transition:
+    background-color 120ms ease,
+    text-decoration-color 120ms ease;
+}
+
+.ProseMirror .bible-ref:hover,
+.ProseMirror .bible-ref--active {
+  background-color: var(--_tint);
+  text-decoration-color: var(--_accent);
+}
+
+.ProseMirror[contenteditable='false'] .bible-ref {
+  cursor: pointer;
+}
+
+/* A quoted passage: the block quote that ends in a citation line. */
+.ProseMirror .bible-passage::before,
+.milkdown .ProseMirror blockquote.bible-passage::before {
+  background: color-mix(in srgb, var(--_accent) 55%, transparent);
+}
+
+/* One font for every digit: text fonts often have ¹²³ but not ⁴ to ⁹. */
+.ProseMirror .bible-verse-number {
+  color: var(--_accent);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.ProseMirror .bible-passage-cite {
+  margin-top: 0.35em;
+  color: var(--_muted);
+  font-family: var(--_font-ui);
+  font-size: 0.8em;
+  letter-spacing: 0.01em;
+}
+
+.ProseMirror .bible-passage-cite .bible-ref {
+  text-decoration-color: transparent;
+}
+
+.ProseMirror .bible-passage-cite .bible-ref:hover,
+.ProseMirror .bible-passage-cite .bible-ref--active {
+  text-decoration-color: var(--_accent);
+}
+
+.ProseMirror .bible-passage--new {
+  animation: bible-arrive 1.3s ease-out;
+}
+
+@keyframes bible-arrive {
+  0%,
+  25% {
+    background-color: var(--_tint);
+    box-shadow: 0 0 0 6px var(--_tint);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+/* A reference on its own line: show how to turn it into the passage. */
+.ProseMirror-focused .bible-hint::after {
+  content: attr(data-bible-hint);
+  margin-left: 0.9em;
+  padding: 0.2em 0.6em;
+  border: 1px solid var(--_border);
+  border-radius: 6px;
+  color: var(--_muted);
+  font-family: var(--_font-ui);
+  font-size: 0.68em;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  vertical-align: 0.12em;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Touch keyboards have no Tab key; there the passage is inserted from the popover. */
+@media (hover: none) {
+  .ProseMirror-focused .bible-hint::after {
+    content: none;
+  }
+}
+
+.ProseMirror .bible-loading .bible-ref {
+  animation: bible-wait 1s ease-in-out infinite alternate;
+}
+
+@keyframes bible-wait {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.4;
+  }
+}
+
+/* ---- Popover ------------------------------------------------------------ */
+
+.bible-popover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: var(--bible-z-index, 60);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: min(27rem, calc(100vw - 16px));
+  max-height: min(25rem, var(--bible-available-height, 25rem));
+  overflow: hidden;
+  border: 1px solid var(--_border);
+  border-radius: var(--bible-radius, 14px);
+  background: var(--_surface);
+  box-shadow: var(--bible-shadow, 0 1px 2px rgb(0 0 0 / 6%), 0 12px 32px rgb(0 0 0 / 16%));
+  color: var(--_text);
+  font-family: var(--_font-ui);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: start;
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+  transform-origin: top left;
+  transition:
+    opacity 120ms ease,
+    transform 140ms cubic-bezier(0.2, 0, 0, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bible-popover[data-placement='top'] {
+  transform: translateY(4px) scale(0.98);
+  transform-origin: bottom left;
+}
+
+.bible-popover[data-state='open'] {
+  opacity: 1;
+  transform: none;
+}
+
+.bible-popover *,
+.bible-popover *::before,
+.bible-popover *::after {
+  box-sizing: border-box;
+}
+
+.bible-popover button {
+  margin: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.bible-popover button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.bible-popover button:focus-visible,
+.bible-popover .bible-popover__input:focus-visible {
+  outline: 2px solid var(--_accent);
+  outline-offset: 1px;
+}
+
+.bible-popover svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+.bible-popover [hidden] {
+  display: none;
+}
+
+/* Search box (picker only) */
+
+.bible-popover .bible-popover__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 14px;
+  border-bottom: 1px solid var(--_border);
+  color: var(--_muted);
+}
+
+.bible-popover .bible-popover__input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--_text);
+  font: inherit;
+  /* 16px keeps iOS from zooming the page when the box takes focus. */
+  font-size: 16px;
+}
+
+.bible-popover .bible-popover__input:focus-visible {
+  outline: none;
+}
+
+.bible-popover .bible-popover__input::placeholder {
+  color: var(--_muted);
+  opacity: 0.8;
+}
+
+/* Header */
+
+.bible-popover .bible-popover__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 8px 6px 16px;
+}
+
+.bible-popover .bible-popover__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: 0.005em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bible-popover .bible-popover__translations {
+  display: flex;
+  flex: none;
+  gap: 2px;
+  max-width: 60%;
+  padding: 2px;
+  overflow-x: auto;
+  border-radius: 999px;
+  background: var(--_wash);
+  scrollbar-width: none;
+}
+
+.bible-popover .bible-popover__translation {
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: var(--_muted);
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  white-space: nowrap;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.bible-popover .bible-popover__translation:hover {
+  color: var(--_text);
+}
+
+.bible-popover .bible-popover__translation[aria-checked='true'] {
+  background: var(--_surface);
+  box-shadow:
+    0 0 0 1px var(--_border),
+    0 1px 2px rgb(0 0 0 / 8%);
+  color: var(--_text);
+}
+
+.bible-popover .bible-popover__close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--_muted);
+}
+
+.bible-popover .bible-popover__close:hover {
+  background: var(--_wash);
+  color: var(--_text);
+}
+
+.bible-popover .bible-popover__close .bible-popover__button-label {
+  display: none;
+}
+
+/* Body */
+
+.bible-popover .bible-popover__body {
+  flex: 1 1 auto;
+  min-height: 3.25rem;
+  padding: 2px 16px 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.bible-popover[data-status='suggest'] .bible-popover__body {
+  padding: 0 6px 6px;
+}
+
+.bible-popover[data-status='suggest'] .bible-popover__header,
+.bible-popover[data-status='suggest'] .bible-popover__footer,
+.bible-popover[data-kind='picker'][data-status='empty'] .bible-popover__header,
+.bible-popover[data-kind='picker'][data-status='empty'] .bible-popover__footer {
+  display: none;
+}
+
+.bible-popover[data-kind='picker'][data-status='empty'] .bible-popover__body,
+.bible-popover[data-status='suggest'] .bible-popover__body {
+  padding-top: 8px;
+}
+
+.bible-popover .bible-text {
+  font-family: var(--_font-text);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}
+
+.bible-popover .bible-text__paragraph {
+  margin: 0;
+}
+
+.bible-popover .bible-text__paragraph + .bible-text__paragraph {
+  margin-top: 0.6em;
+}
+
+.bible-popover .bible-text__chapter {
+  margin: 1.1em 0 0.35em;
+  color: var(--_muted);
+  font-family: var(--_font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.bible-popover .bible-text__chapter:first-child {
+  margin-top: 0;
+}
+
+.bible-popover .bible-text__heading {
+  margin: 0.9em 0 0.25em;
+  color: var(--_muted);
+  font-family: var(--_font-ui);
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.bible-popover .bible-text__chapter + .bible-text__heading {
+  margin-top: 0;
+}
+
+.bible-popover .bible-verse {
+  border-radius: 3px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.bible-popover .bible-verse__number {
+  position: relative;
+  top: -0.42em;
+  margin-right: 0.25em;
+  color: var(--_accent);
+  font-family: var(--_font-ui);
+  font-size: 0.66em;
+  font-weight: 700;
+  line-height: 0;
+  vertical-align: baseline;
+  user-select: none;
+}
+
+.bible-popover .bible-text--single .bible-verse__number {
+  display: none;
+}
+
+.bible-popover .bible-text--context .bible-verse {
+  color: var(--_muted);
+}
+
+.bible-popover .bible-text--context .bible-verse--cited {
+  padding: 0.14em 0;
+  background: var(--_tint);
+  color: var(--_text);
+}
+
+/* Poetry: each line on its own row, runovers and second lines hung in. */
+.bible-popover .bible-verse__line {
+  display: block;
+  padding-left: calc(1.4em + var(--bible-indent, 0) * 1.2em);
+  text-indent: -1.4em;
+}
+
+.bible-popover .bible-popover__message {
+  margin: 0;
+  padding: 6px 0 2px;
+  color: var(--_muted);
+  font-size: 13.5px;
+}
+
+.bible-popover[data-kind='picker'] .bible-popover__message {
+  padding: 4px 8px 6px;
+}
+
+.bible-popover .bible-popover__message--error {
+  color: var(--_text);
+}
+
+.bible-popover .bible-popover__retry {
+  margin-top: 8px;
+  padding: 5px 12px;
+  border: 1px solid var(--_border);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.bible-popover .bible-popover__retry:hover {
+  background: var(--_wash);
+}
+
+.bible-popover .bible-popover__skeleton {
+  display: grid;
+  gap: 10px;
+  padding: 8px 0 4px;
+}
+
+.bible-popover .bible-popover__skeleton-line {
+  height: 11px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--_wash) 25%, color-mix(in srgb, var(--_text) 12%, transparent) 50%, var(--_wash) 75%);
+  background-size: 200% 100%;
+  animation: bible-shimmer 1.2s linear infinite;
+}
+
+.bible-popover .bible-popover__skeleton-line:nth-child(2) {
+  width: 92%;
+}
+
+.bible-popover .bible-popover__skeleton-line:nth-child(3) {
+  width: 64%;
+}
+
+@keyframes bible-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+/* Book suggestions (picker only) */
+
+.bible-popover .bible-popover__suggestions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bible-popover .bible-popover__suggestion {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.bible-popover .bible-popover__suggestion:hover {
+  background: var(--_wash);
+}
+
+.bible-popover .bible-popover__suggestion[aria-selected='true'] {
+  background: var(--_tint);
+}
+
+.bible-popover .bible-popover__suggestion-name {
+  font-weight: 600;
+}
+
+.bible-popover .bible-popover__suggestion-meta {
+  color: var(--_muted);
+  font-size: 12px;
+}
+
+/* Footer */
+
+.bible-popover .bible-popover__footer {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border-top: 1px solid var(--_border);
+  background: color-mix(in srgb, var(--_text) 3%, transparent);
+}
+
+.bible-popover .bible-popover__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color 120ms ease;
+}
+
+.bible-popover .bible-popover__button:hover:not(:disabled) {
+  background: var(--_wash);
+}
+
+.bible-popover .bible-popover__button--primary {
+  background: var(--_accent);
+  color: var(--_on-accent);
+}
+
+.bible-popover .bible-popover__button--primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--_accent) 88%, var(--_text));
+}
+
+.bible-popover .bible-popover__button[aria-pressed='true'] {
+  background: var(--_tint);
+  color: var(--_accent);
+}
+
+.bible-popover .bible-popover__button[data-copied] {
+  color: var(--_accent);
+}
+
+.bible-popover .bible-popover__hint {
+  margin-left: auto;
+  padding-right: 6px;
+  color: var(--_muted);
+  font-size: 12px;
+}
+
+@media (pointer: coarse) {
+  .bible-popover .bible-popover__button {
+    height: 38px;
+    padding: 0 12px;
+    font-size: 13.5px;
+  }
+
+  .bible-popover .bible-popover__translation {
+    padding: 6px 11px;
+    font-size: 12.5px;
+  }
+
+  .bible-popover .bible-popover__close {
+    width: 36px;
+    height: 36px;
+  }
+
+  .bible-popover .bible-popover__suggestion {
+    padding: 11px 10px;
+  }
+
+  .bible-popover .bible-popover__hint {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bible-popover {
+    transition: none;
+  }
+
+  .ProseMirror .bible-ref {
+    transition: none;
+  }
+
+  .ProseMirror .bible-passage--new,
+  .ProseMirror .bible-loading .bible-ref,
+  .bible-popover .bible-popover__skeleton-line {
+    animation: none;
+  }
+}

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>milkdown-plugin-bible: Crepe</title>
+    <link rel="stylesheet" href="./demo.css" />
+  </head>
+  <body>
+    <header>
+      <h1>milkdown-plugin-bible</h1>
+      <p>
+        Point at a reference, or click it. Put a reference on a line of its own and press Tab. Type
+        <kbd>/</kbd> and choose Bible passage.
+      </p>
+      <nav aria-label="Demos">
+        <a href="?theme=frame">Frame</a>
+        <a href="?theme=frame-dark">Frame dark</a>
+        <a href="?theme=nord">Nord</a>
+        <a href="?theme=nord-dark">Nord dark</a>
+        <a href="?theme=classic">Classic</a>
+        <a href="?theme=classic-dark">Classic dark</a>
+        <a href="./plain.html">Without Crepe</a>
+      </nav>
+    </header>
+    <main>
+      <h2>Crepe</h2>
+      <div id="crepe" class="editor"></div>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

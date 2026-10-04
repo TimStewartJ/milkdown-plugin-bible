@@ -1,0 +1,59 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+:root[data-dark] {
+  color-scheme: dark;
+}
+
+body {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 12rem;
+}
+
+header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.4rem;
+}
+
+header p {
+  margin: 0 0 0.5rem;
+  opacity: 0.8;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+h2 {
+  margin: 2rem 0 0.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.editor {
+  border: 1px solid color-mix(in srgb, CanvasText 18%, transparent);
+  border-radius: 10px;
+  overflow: clip;
+}
+
+/* The unthemed editors get just enough to be usable. */
+.editor--plain .ProseMirror {
+  padding: 1rem 1.25rem;
+  outline: none;
+  line-height: 1.6;
+}
+
+.editor--plain blockquote {
+  position: relative;
+  margin: 0.75rem 0;
+  padding-left: 1.25rem;
+  border-left: 4px solid color-mix(in srgb, CanvasText 18%, transparent);
+}

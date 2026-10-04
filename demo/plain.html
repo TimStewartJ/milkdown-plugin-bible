@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>milkdown-plugin-bible: plain Milkdown</title>
+    <link rel="stylesheet" href="./demo.css" />
+  </head>
+  <body>
+    <header>
+      <h1>milkdown-plugin-bible</h1>
+      <p>Milkdown with the commonmark preset and no theme.</p>
+      <nav aria-label="Demos">
+        <a href="./plain.html">Light</a>
+        <a href="./plain.html?dark">Dark</a>
+        <a href="./index.html">With Crepe</a>
+      </nav>
+    </header>
+    <main>
+      <h2>Editable</h2>
+      <div id="plain" class="editor editor--plain"></div>
+      <h2>Read-only</h2>
+      <div id="readonly" class="editor editor--plain"></div>
+    </main>
+    <script type="module" src="./plain.ts"></script>
+  </body>
+</html>
